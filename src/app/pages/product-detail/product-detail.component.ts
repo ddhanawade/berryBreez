@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { Product } from '../../models/product.model';
+import { CartService } from '../../services/cart.service';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-product-detail',
@@ -61,7 +63,9 @@ export class ProductDetailComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private cartService: CartService,
+    private toastService: ToastService
   ) {}
 
   ngOnInit(): void {
@@ -100,13 +104,18 @@ export class ProductDetailComponent implements OnInit {
   }
 
   addToCart(): void {
-    console.log('Adding to cart:', this.product, 'Quantity:', this.quantity);
-    // Implement cart service call
+    if (this.product) {
+      this.cartService.addToCart(this.product, this.quantity);
+      this.toastService.success(`Added ${this.quantity} ${this.product.unit} of ${this.product.name} to cart!`);
+    }
   }
 
   buyNow(): void {
-    this.addToCart();
-    this.router.navigate(['/cart']);
+    if (this.product) {
+      this.cartService.addToCart(this.product, this.quantity);
+      this.toastService.success('Product added to cart!');
+      this.router.navigate(['/cart']);
+    }
   }
 
   selectTab(tab: 'description' | 'nutrition' | 'reviews'): void {

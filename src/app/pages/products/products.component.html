@@ -2,7 +2,7 @@
   <!-- Page Header -->
   <section class="page-header">
     <div class="container">
-      <h1 class="page-title">Our Products</h1>
+      <h1 class="page-title">Our <span>Products</span></h1>
       <p class="page-subtitle">Fresh products directly from Mahabaleshwar farms</p>
 
       <!-- Breadcrumb (Desktop Only) -->
@@ -355,14 +355,42 @@
             <img [src]="product.images[0]" [alt]="product.name" />
             <div class="product-badges">
               <span *ngIf="product.discount" class="badge discount-badge">
-                -{{ product.discount }}%
+                {{ product.discount }}% OFF
               </span>
               <span *ngIf="product.isOrganic" class="badge organic-badge">
-                🌿
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 2L2 7L12 12L22 7L12 2Z"/>
+                  <path d="M2 17L12 22L22 17"/>
+                </svg>
+                Organic
               </span>
               <span *ngIf="product.isSeasonal" class="badge seasonal-badge">
-                ⭐
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                </svg>
+                Seasonal
               </span>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="product-actions">
+              <button class="action-btn wishlist-btn" title="Add to Wishlist">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                </svg>
+              </button>
+              <button class="action-btn quickview-btn" [routerLink]="['/products', product.id]" title="Quick View">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+              </button>
+            </div>
+
+            <!-- Stock & Delivery Info Overlay -->
+            <div class="product-info-overlay">
+              <span class="stock-indicator">In Stock</span>
+              <span class="delivery-info">2hr delivery</span>
             </div>
           </div>
 
@@ -374,16 +402,26 @@
 
             <div class="product-meta">
               <div class="product-rating">
-                <span class="stars">⭐ {{ product.rating }}</span>
+                <span class="stars">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="#fbbf24" stroke="none">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                  </svg>
+                  {{ product.rating }}
+                </span>
                 <span class="reviews">({{ product.reviewCount }})</span>
               </div>
             </div>
 
             <div class="product-footer">
               <div class="product-pricing">
-                <span class="current-price">₹{{ product.price }}</span>
-                <span *ngIf="product.originalPrice" class="original-price">
-                  ₹{{ product.originalPrice }}
+                <div class="price-row">
+                  <span class="current-price">₹{{ product.price }}</span>
+                  <span *ngIf="product.originalPrice" class="original-price">
+                    ₹{{ product.originalPrice }}
+                  </span>
+                </div>
+                <span *ngIf="product.discount && product.originalPrice" class="savings">
+                  Save ₹{{ product.originalPrice - product.price }}
                 </span>
               </div>
               <button (click)="addToCart(product)" class="add-to-cart-btn">
