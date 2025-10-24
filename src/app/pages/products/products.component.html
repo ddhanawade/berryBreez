@@ -1,0 +1,441 @@
+<div class="products-page">
+  <!-- Page Header -->
+  <section class="page-header">
+    <div class="container">
+      <h1 class="page-title">Our Products</h1>
+      <p class="page-subtitle">Fresh products directly from Mahabaleshwar farms</p>
+
+      <!-- Breadcrumb (Desktop Only) -->
+      <nav class="breadcrumb hide-mobile">
+        <a routerLink="/">Home</a>
+        <span class="separator">›</span>
+        <span class="current">Products</span>
+      </nav>
+    </div>
+  </section>
+
+  <div class="products-container container">
+    <!-- Desktop Sidebar Filters -->
+    <aside class="filters-sidebar hide-mobile">
+      <div class="filters-header">
+        <h2>Filters</h2>
+        <button *ngIf="selectedCategory || selectedBrand || searchQuery"
+                (click)="clearFilters()"
+                class="clear-filters-btn">
+          Clear All
+        </button>
+      </div>
+
+      <!-- Search Filter -->
+      <div class="filter-group">
+        <label class="filter-label">Search</label>
+        <input
+          type="text"
+          [(ngModel)]="searchQuery"
+          (ngModelChange)="onSearchChange()"
+          placeholder="Search products..."
+          class="filter-input"
+        />
+      </div>
+
+      <!-- Category Filter -->
+      <div class="filter-group">
+        <label class="filter-label">Categories</label>
+        <div class="filter-options">
+          <button
+            *ngFor="let category of categories"
+            (click)="onCategoryChange(category)"
+            [class.active]="selectedCategory === category"
+            class="filter-option-btn">
+            {{ category }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Brand Filter -->
+      <div class="filter-group" *ngIf="brands.length > 0">
+        <label class="filter-label">Brands</label>
+        <div class="filter-options">
+          <button
+            *ngFor="let brand of brands"
+            (click)="onBrandChange(brand)"
+            [class.active]="selectedBrand === brand"
+            class="filter-option-btn">
+            {{ brand }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Special Filters -->
+      <div class="filter-group">
+        <label class="filter-label">Special Filters</label>
+        <div class="checkbox-group">
+          <label class="checkbox-label">
+            <input
+              type="checkbox"
+              [(ngModel)]="showOnlyOrganic"
+              (ngModelChange)="onFilterChange()"
+            />
+            <span>Organic Only</span>
+          </label>
+          <label class="checkbox-label">
+            <input
+              type="checkbox"
+              [(ngModel)]="showOnlySeasonal"
+              (ngModelChange)="onFilterChange()"
+            />
+            <span>Seasonal Only</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Price Range -->
+<!--      <div class="filter-group">-->
+<!--        <label class="filter-label">Price Range</label>-->
+<!--        <div class="price-inputs">-->
+<!--          <input -->
+<!--            type="number" -->
+<!--            [(ngModel)]="minPrice"-->
+<!--            (ngModelChange)="onFilterChange()"-->
+<!--            placeholder="Min"-->
+<!--            class="price-input"-->
+<!--          />-->
+<!--          <span class="price-separator">-</span>-->
+<!--          <input -->
+<!--            type="number" -->
+<!--            [(ngModel)]="maxPrice"-->
+<!--            (ngModelChange)="onFilterChange()"-->
+<!--            placeholder="Max"-->
+<!--            class="price-input"-->
+<!--          />-->
+<!--        </div>-->
+<!--      </div>-->
+    </aside>
+
+    <!-- Mobile Filter Button -->
+    <button class="mobile-filter-btn hide-desktop" (click)="toggleMobileFilters()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <line x1="4" y1="6" x2="20" y2="6" stroke-width="2" stroke-linecap="round"/>
+        <line x1="4" y1="12" x2="20" y2="12" stroke-width="2" stroke-linecap="round"/>
+        <line x1="4" y1="18" x2="20" y2="18" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      Filters
+      <span *ngIf="selectedCategory || selectedBrand" class="filter-count">
+        {{ (selectedCategory ? 1 : 0) + (selectedBrand ? 1 : 0) }}
+      </span>
+    </button>
+
+    <!-- Mobile Filters Modal -->
+    <div class="mobile-filters-modal" [class.show]="showMobileFilters">
+      <div class="modal-overlay" (click)="closeMobileFilters()"></div>
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Filters</h2>
+          <button class="close-btn" (click)="closeMobileFilters()">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <line x1="18" y1="6" x2="6" y2="18" stroke-width="2" stroke-linecap="round"/>
+              <line x1="6" y1="6" x2="18" y2="18" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <!-- Mobile Search -->
+          <div class="filter-group">
+            <label class="filter-label">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <circle cx="11" cy="11" r="8" stroke-width="2"/>
+                <path d="M21 21L16.65 16.65" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+              Search Products
+            </label>
+            <input
+              type="text"
+              [(ngModel)]="searchQuery"
+              (ngModelChange)="onSearchChange()"
+              placeholder="Type to search..."
+              class="filter-input"
+            />
+          </div>
+
+          <!-- Mobile Categories -->
+          <div class="filter-group">
+            <label class="filter-label">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <rect x="3" y="3" width="7" height="7" stroke-width="2"/>
+                <rect x="14" y="3" width="7" height="7" stroke-width="2"/>
+                <rect x="3" y="14" width="7" height="7" stroke-width="2"/>
+                <rect x="14" y="14" width="7" height="7" stroke-width="2"/>
+              </svg>
+              Categories
+            </label>
+            <div class="mobile-chip-group">
+              <button
+                *ngFor="let category of categories"
+                (click)="onCategoryChange(category)"
+                [class.active]="selectedCategory === category"
+                class="chip-btn">
+                {{ category }}
+              </button>
+            </div>
+          </div>
+
+          <!-- Mobile Brands -->
+          <div class="filter-group" *ngIf="brands.length > 0">
+            <label class="filter-label">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path d="M20 7H4C2.9 7 2 7.9 2 9V19C2 20.1 2.9 21 4 21H20C21.1 21 22 20.1 22 19V9C22 7.9 21.1 7 20 7Z" stroke-width="2"/>
+                <path d="M16 21V5C16 3.9 15.1 3 14 3H10C8.9 3 8 3.9 8 5V21" stroke-width="2"/>
+              </svg>
+              Brands
+            </label>
+            <div class="mobile-chip-group">
+              <button
+                *ngFor="let brand of brands"
+                (click)="onBrandChange(brand)"
+                [class.active]="selectedBrand === brand"
+                class="chip-btn">
+                {{ brand }}
+              </button>
+            </div>
+          </div>
+
+          <!-- Mobile Special Filters -->
+          <div class="filter-group">
+            <label class="filter-label">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" stroke-width="2"/>
+              </svg>
+              Special Filters
+            </label>
+            <div class="mobile-toggle-group">
+              <label class="toggle-label">
+                <input
+                  type="checkbox"
+                  [(ngModel)]="showOnlyOrganic"
+                  (ngModelChange)="onFilterChange()"
+                />
+                <span class="toggle-switch"></span>
+                <span class="toggle-text">🌿 Organic Only</span>
+              </label>
+              <label class="toggle-label">
+                <input
+                  type="checkbox"
+                  [(ngModel)]="showOnlySeasonal"
+                  (ngModelChange)="onFilterChange()"
+                />
+                <span class="toggle-switch"></span>
+                <span class="toggle-text">⭐ Seasonal Only</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Mobile Price Range -->
+          <div class="filter-group">
+            <label class="filter-label">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <line x1="12" y1="1" x2="12" y2="23" stroke-width="2" stroke-linecap="round"/>
+                <path d="M17 5H9.5C8.57174 5 7.6815 5.36875 7.02513 6.02513C6.36875 6.6815 6 7.57174 6 8.5C6 9.42826 6.36875 10.3185 7.02513 10.9749C7.6815 11.6313 8.57174 12 9.5 12H14.5C15.4283 12 16.3185 12.3687 16.9749 13.0251C17.6313 13.6815 18 14.5717 18 15.5C18 16.4283 17.6313 17.3185 16.9749 17.9749C16.3185 18.6313 15.4283 19 14.5 19H6" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+              Price Range (₹)
+            </label>
+            <div class="price-range-slider">
+              <div class="price-inputs-mobile">
+                <input
+                  type="number"
+                  [(ngModel)]="minPrice"
+                  (ngModelChange)="onFilterChange()"
+                  placeholder="Min"
+                  class="price-input-mobile"
+                />
+                <span class="price-separator">to</span>
+                <input
+                  type="number"
+                  [(ngModel)]="maxPrice"
+                  (ngModelChange)="onFilterChange()"
+                  placeholder="Max"
+                  class="price-input-mobile"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn-clear" (click)="clearFilters(); closeMobileFilters()">
+            Clear All
+          </button>
+          <button class="btn-apply" (click)="closeMobileFilters()">
+            Apply Filters
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="products-main">
+      <!-- Toolbar -->
+      <div class="products-toolbar">
+        <div class="results-info">
+          <span class="results-count">{{ filteredProducts.length }} Products</span>
+          <span *ngIf="selectedCategory" class="active-filter">
+            in {{ selectedCategory }}
+          </span>
+        </div>
+
+        <div class="toolbar-actions">
+          <!-- Sort Dropdown -->
+          <select
+            [(ngModel)]="sortBy"
+            (ngModelChange)="onSortChange()"
+            class="sort-select">
+            <option value="popular">Popular</option>
+            <option value="rating">Top Rated</option>
+            <option value="price-asc">Price ↑</option>
+            <option value="price-desc">Price ↓</option>
+            <option value="newest">Newest</option>
+          </select>
+
+          <!-- View Toggle (Desktop Only) -->
+          <div class="view-toggle hide-mobile">
+            <button
+              (click)="viewMode = 'grid'"
+              [class.active]="viewMode === 'grid'"
+              class="view-btn"
+              title="Grid View">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <rect x="3" y="3" width="7" height="7" stroke-width="2"/>
+                <rect x="14" y="3" width="7" height="7" stroke-width="2"/>
+                <rect x="3" y="14" width="7" height="7" stroke-width="2"/>
+                <rect x="14" y="14" width="7" height="7" stroke-width="2"/>
+              </svg>
+            </button>
+            <button
+              (click)="viewMode = 'list'"
+              [class.active]="viewMode === 'list'"
+              class="view-btn"
+              title="List View">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <line x1="8" y1="6" x2="21" y2="6" stroke-width="2" stroke-linecap="round"/>
+                <line x1="8" y1="12" x2="21" y2="12" stroke-width="2" stroke-linecap="round"/>
+                <line x1="8" y1="18" x2="21" y2="18" stroke-width="2" stroke-linecap="round"/>
+                <line x1="3" y1="6" x2="3.01" y2="6" stroke-width="2" stroke-linecap="round"/>
+                <line x1="3" y1="12" x2="3.01" y2="12" stroke-width="2" stroke-linecap="round"/>
+                <line x1="3" y1="18" x2="3.01" y2="18" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Loading State -->
+      <div *ngIf="isLoading" class="loading-state">
+        <div class="spinner"></div>
+        <p>Loading products...</p>
+      </div>
+
+      <!-- Empty State -->
+      <div *ngIf="!isLoading && filteredProducts.length === 0" class="empty-state">
+        <svg width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <circle cx="11" cy="11" r="8" stroke-width="2"/>
+          <path d="M21 21L16.65 16.65" stroke-width="2" stroke-linecap="round"/>
+          <line x1="11" y1="8" x2="11" y2="14" stroke-width="2" stroke-linecap="round"/>
+          <line x1="8" y1="11" x2="14" y2="11" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <h3>No products found</h3>
+        <p>Try adjusting your filters or search terms</p>
+        <button (click)="clearFilters()" class="btn-primary">Clear Filters</button>
+      </div>
+
+      <!-- Products Grid -->
+      <div *ngIf="!isLoading && filteredProducts.length > 0"
+           class="products-grid">
+        <div *ngFor="let product of filteredProducts" class="product-card">
+          <div class="product-image">
+            <img [src]="product.images[0]" [alt]="product.name" />
+            <div class="product-badges">
+              <span *ngIf="product.discount" class="badge discount-badge">
+                -{{ product.discount }}%
+              </span>
+              <span *ngIf="product.isOrganic" class="badge organic-badge">
+                🌿
+              </span>
+              <span *ngIf="product.isSeasonal" class="badge seasonal-badge">
+                ⭐
+              </span>
+            </div>
+          </div>
+
+          <div class="product-info">
+            <div class="product-category">{{ product.category }}</div>
+            <h3 class="product-name">
+              <a [routerLink]="['/products', product.id]">{{ product.name }}</a>
+            </h3>
+
+            <div class="product-meta">
+              <div class="product-rating">
+                <span class="stars">⭐ {{ product.rating }}</span>
+                <span class="reviews">({{ product.reviewCount }})</span>
+              </div>
+            </div>
+
+            <div class="product-footer">
+              <div class="product-pricing">
+                <span class="current-price">₹{{ product.price }}</span>
+                <span *ngIf="product.originalPrice" class="original-price">
+                  ₹{{ product.originalPrice }}
+                </span>
+              </div>
+              <button (click)="addToCart(product)" class="add-to-cart-btn">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <circle cx="9" cy="21" r="1" stroke-width="2"/>
+                  <circle cx="20" cy="21" r="1" stroke-width="2"/>
+                  <path d="M1 1H5L7.68 14.39C7.77 14.83 8.17 15.17 8.62 15.17H19.4C19.85 15.17 20.25 14.83 20.34 14.39L22 6H6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Add
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Mobile Bottom Navigation -->
+  <nav class="mobile-bottom-nav hide-desktop">
+    <a routerLink="/" class="nav-item" [class.active]="activeBottomTab === 'home'" (click)="setBottomTab('home')">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path d="M3 9L12 2L21 9V20C21 20.5304 20.7893 21.0391 20.4142 21.4142C20.0391 21.7893 19.5304 22 19 22H5C4.46957 22 3.96086 21.7893 3.58579 21.4142C3.21071 21.0391 3 20.5304 3 20V9Z" stroke-width="2"/>
+        <path d="M9 22V12H15V22" stroke-width="2"/>
+      </svg>
+      <span>Home</span>
+    </a>
+
+    <a routerLink="/products" class="nav-item active" [class.active]="activeBottomTab === 'products'" (click)="setBottomTab('products')">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <rect x="3" y="3" width="7" height="7" stroke-width="2"/>
+        <rect x="14" y="3" width="7" height="7" stroke-width="2"/>
+        <rect x="3" y="14" width="7" height="7" stroke-width="2"/>
+        <rect x="14" y="14" width="7" height="7" stroke-width="2"/>
+      </svg>
+      <span>Products</span>
+    </a>
+
+    <a routerLink="/cart" class="nav-item" [class.active]="activeBottomTab === 'cart'" (click)="setBottomTab('cart')">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <circle cx="9" cy="21" r="1" stroke-width="2"/>
+        <circle cx="20" cy="21" r="1" stroke-width="2"/>
+        <path d="M1 1H5L7.68 14.39C7.77 14.83 8.17 15.17 8.62 15.17H19.4C19.85 15.17 20.25 14.83 20.34 14.39L22 6H6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span>Cart</span>
+    </a>
+
+    <a routerLink="/profile" class="nav-item" [class.active]="activeBottomTab === 'profile'" (click)="setBottomTab('profile')">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="12" cy="7" r="4" stroke-width="2"/>
+      </svg>
+      <span>Profile</span>
+    </a>
+  </nav>
+</div>

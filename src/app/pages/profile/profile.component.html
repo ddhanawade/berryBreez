@@ -1,0 +1,371 @@
+<div class="profile-page">
+  <!-- Page Header -->
+  <section class="page-header">
+    <div class="container">
+      <h1 class="page-title">My Profile</h1>
+      <p class="page-subtitle" *ngIf="user">Welcome back, {{ user.name }}!</p>
+    </div>
+  </section>
+
+  <div class="profile-container container">
+    <!-- Tab Navigation -->
+    <div class="tab-navigation">
+      <button 
+        (click)="setTab('profile')" 
+        [class.active]="activeTab === 'profile'"
+        class="tab-btn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21" stroke-width="2"/>
+          <circle cx="12" cy="7" r="4" stroke-width="2"/>
+        </svg>
+        <span>Profile</span>
+      </button>
+      
+      <button 
+        (click)="setTab('orders')" 
+        [class.active]="activeTab === 'orders'"
+        class="tab-btn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path d="M16 21V5C16 4.46957 15.7893 3.96086 15.4142 3.58579C15.0391 3.21071 14.5304 3 14 3H10C9.46957 3 8.96086 3.21071 8.58579 3.58579C8.21071 3.96086 8 4.46957 8 5V21M4 7H20M4 7C2.89543 7 2 7.89543 2 9V19C2 20.1046 2.89543 21 4 21H20C21.1046 21 22 20.1046 22 19V9C22 7.89543 21.1046 7 20 7" stroke-width="2"/>
+        </svg>
+        <span>Orders</span>
+        <span *ngIf="currentOrders.length > 0" class="badge">{{ currentOrders.length }}</span>
+      </button>
+      
+      <button 
+        (click)="setTab('addresses')" 
+        [class.active]="activeTab === 'addresses'"
+        class="tab-btn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path d="M21 10C21 17 12 23 12 23C12 23 3 17 3 10C3 7.61305 3.94821 5.32387 5.63604 3.63604C7.32387 1.94821 9.61305 1 12 1C14.3869 1 16.6761 1.94821 18.364 3.63604C20.0518 5.32387 21 7.61305 21 10Z" stroke-width="2"/>
+          <circle cx="12" cy="10" r="3" stroke-width="2"/>
+        </svg>
+        <span>Addresses</span>
+      </button>
+    </div>
+
+    <!-- Profile Tab Content -->
+    <div *ngIf="activeTab === 'profile'" class="tab-content">
+      <div class="profile-card">
+        <div class="card-header">
+          <h2>Personal Information</h2>
+          <button *ngIf="!isEditingProfile" (click)="startEditProfile()" class="edit-btn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M18.5 2.50001C18.8978 2.10219 19.4374 1.87869 20 1.87869C20.5626 1.87869 21.1022 2.10219 21.5 2.50001C21.8978 2.89784 22.1213 3.4374 22.1213 4.00001C22.1213 4.56262 21.8978 5.10219 21.5 5.50001L12 15L8 16L9 12L18.5 2.50001Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Edit
+          </button>
+        </div>
+
+        <div class="card-body">
+          <div *ngIf="!isEditingProfile" class="info-display">
+            <div class="info-item">
+              <label>Name</label>
+              <p>{{ user?.name }}</p>
+            </div>
+            <div class="info-item">
+              <label>Email</label>
+              <p>{{ user?.email }}</p>
+            </div>
+            <div class="info-item">
+              <label>Phone</label>
+              <p>{{ user?.phone }}</p>
+            </div>
+            <div class="info-item">
+              <label>Member Since</label>
+              <p>{{ user?.createdAt | date:'MMM yyyy' }}</p>
+            </div>
+          </div>
+
+          <form *ngIf="isEditingProfile" class="edit-form">
+            <div class="form-group">
+              <label>Name</label>
+              <input type="text" [(ngModel)]="profileForm.name" name="name" class="form-input" required />
+            </div>
+            <div class="form-group">
+              <label>Email</label>
+              <input type="email" [(ngModel)]="profileForm.email" name="email" class="form-input" required />
+            </div>
+            <div class="form-group">
+              <label>Phone</label>
+              <input type="tel" [(ngModel)]="profileForm.phone" name="phone" class="form-input" required />
+            </div>
+            <div class="form-actions">
+              <button type="button" (click)="cancelEditProfile()" class="btn-cancel">Cancel</button>
+              <button type="button" (click)="saveProfile()" class="btn-save">Save Changes</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <button (click)="logout()" class="logout-btn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path d="M9 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <polyline points="16 17 21 12 16 7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <line x1="21" y1="12" x2="9" y2="12" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Logout
+      </button>
+    </div>
+
+    <!-- Orders Tab Content -->
+    <div *ngIf="activeTab === 'orders'" class="tab-content">
+      <!-- Current Orders -->
+      <div class="orders-section">
+        <h2 class="section-title">Current Orders ({{ currentOrders.length }})</h2>
+        
+        <div *ngIf="currentOrders.length === 0" class="empty-state">
+          <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path d="M16 21V5C16 4.46957 15.7893 3.96086 15.4142 3.58579C15.0391 3.21071 14.5304 3 14 3H10C9.46957 3 8.96086 3.21071 8.58579 3.58579C8.21071 3.96086 8 4.46957 8 5V21M4 7H20M4 7C2.89543 7 2 7.89543 2 9V19C2 20.1046 2.89543 21 4 21H20C21.1046 21 22 20.1046 22 19V9C22 7.89543 21.1046 7 20 7" stroke-width="2"/>
+          </svg>
+          <p>No current orders</p>
+        </div>
+
+        <div class="orders-list">
+          <div *ngFor="let order of currentOrders" class="order-card">
+            <div class="order-header">
+              <div class="order-info">
+                <h3>Order #{{ order.id.slice(0, 8) }}</h3>
+                <p class="order-date">{{ order.orderDate | date:'MMM d, yyyy' }}</p>
+              </div>
+              <span class="status-badge" [class]="getStatusColor(order.orderStatus)">
+                {{ order.orderStatus }}
+              </span>
+            </div>
+            <div class="order-items">
+              <div *ngFor="let item of order.items.slice(0, 2)" class="order-item">
+                <span>{{ item.product.name }} × {{ item.quantity }}</span>
+              </div>
+              <p *ngIf="order.items.length > 2" class="more-items">
+                +{{ order.items.length - 2 }} more items
+              </p>
+            </div>
+            <div class="order-footer">
+              <span class="order-total">₹{{ order.total }}</span>
+              <a [routerLink]="['/orders', order.id]" class="view-btn">View Details</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Past Orders -->
+      <div class="orders-section">
+        <h2 class="section-title">Past Orders ({{ pastOrders.length }})</h2>
+        
+        <div *ngIf="pastOrders.length === 0" class="empty-state">
+          <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path d="M16 21V5C16 4.46957 15.7893 3.96086 15.4142 3.58579C15.0391 3.21071 14.5304 3 14 3H10C9.46957 3 8.96086 3.21071 8.58579 3.58579C8.21071 3.96086 8 4.46957 8 5V21M4 7H20M4 7C2.89543 7 2 7.89543 2 9V19C2 20.1046 2.89543 21 4 21H20C21.1046 21 22 20.1046 22 19V9C22 7.89543 21.1046 7 20 7" stroke-width="2"/>
+          </svg>
+          <p>No past orders</p>
+        </div>
+
+        <div class="orders-list">
+          <div *ngFor="let order of pastOrders" class="order-card">
+            <div class="order-header">
+              <div class="order-info">
+                <h3>Order #{{ order.id.slice(0, 8) }}</h3>
+                <p class="order-date">{{ order.orderDate | date:'MMM d, yyyy' }}</p>
+              </div>
+              <span class="status-badge" [class]="getStatusColor(order.orderStatus)">
+                {{ order.orderStatus }}
+              </span>
+            </div>
+            <div class="order-items">
+              <div *ngFor="let item of order.items.slice(0, 2)" class="order-item">
+                <span>{{ item.product.name }} × {{ item.quantity }}</span>
+              </div>
+              <p *ngIf="order.items.length > 2" class="more-items">
+                +{{ order.items.length - 2 }} more items
+              </p>
+            </div>
+            <div class="order-footer">
+              <span class="order-total">₹{{ order.total }}</span>
+              <a [routerLink]="['/orders', order.id]" class="view-btn">View Details</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Addresses Tab Content -->
+    <div *ngIf="activeTab === 'addresses'" class="tab-content">
+      <div class="addresses-header">
+        <h2>Saved Addresses</h2>
+        <button (click)="startAddAddress()" class="add-address-btn">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <line x1="12" y1="5" x2="12" y2="19" stroke-width="2" stroke-linecap="round"/>
+            <line x1="5" y1="12" x2="19" y2="12" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          Add New Address
+        </button>
+      </div>
+
+      <!-- Add/Edit Address Form -->
+      <div *ngIf="isAddingAddress || editingAddressId" class="address-form-card">
+        <h3>{{ editingAddressId ? 'Edit Address' : 'Add New Address' }}</h3>
+        <form class="address-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Address Type</label>
+              <select [(ngModel)]="addressForm.type" name="type" class="form-input">
+                <option value="home">Home</option>
+                <option value="work">Work</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label>Full Name</label>
+              <input type="text" [(ngModel)]="addressForm.name" name="name" class="form-input" placeholder="John Doe" required />
+            </div>
+            <div class="form-group">
+              <label>Phone Number</label>
+              <input type="tel" [(ngModel)]="addressForm.phone" name="phone" class="form-input" placeholder="+91 98765 43210" required />
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label>Address Line 1</label>
+            <input type="text" [(ngModel)]="addressForm.addressLine1" name="addressLine1" class="form-input" placeholder="123 Main St" required />
+          </div>
+          
+          <div class="form-group">
+            <label>Address Line 2 (Optional)</label>
+            <input type="text" [(ngModel)]="addressForm.addressLine2" name="addressLine2" class="form-input" placeholder="Apartment, suite, etc." />
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label>City</label>
+              <input type="text" [(ngModel)]="addressForm.city" name="city" class="form-input" placeholder="Mumbai" required />
+            </div>
+            <div class="form-group">
+              <label>State</label>
+              <input type="text" [(ngModel)]="addressForm.state" name="state" class="form-input" placeholder="Maharashtra" required />
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label>PIN Code</label>
+              <input type="text" [(ngModel)]="addressForm.pincode" name="pincode" class="form-input" placeholder="400001" required />
+            </div>
+            <div class="form-group">
+              <label>Landmark (Optional)</label>
+              <input type="text" [(ngModel)]="addressForm.landmark" name="landmark" class="form-input" placeholder="Near City Mall" />
+            </div>
+          </div>
+          
+          <div class="form-group checkbox-group">
+            <label class="checkbox-label">
+              <input type="checkbox" [(ngModel)]="addressForm.isDefault" name="isDefault" />
+              <span>Set as default address</span>
+            </label>
+          </div>
+          
+          <div class="form-actions">
+            <button type="button" (click)="cancelAddressEdit()" class="btn-cancel">Cancel</button>
+            <button type="button" (click)="saveAddress()" class="btn-save">Save Address</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Addresses List -->
+      <div *ngIf="user && user.addresses.length === 0 && !isAddingAddress" class="empty-state">
+        <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path d="M21 10C21 17 12 23 12 23C12 23 3 17 3 10C3 7.61305 3.94821 5.32387 5.63604 3.63604C7.32387 1.94821 9.61305 1 12 1C14.3869 1 16.6761 1.94821 18.364 3.63604C20.0518 5.32387 21 7.61305 21 10Z" stroke-width="2"/>
+          <circle cx="12" cy="10" r="3" stroke-width="2"/>
+        </svg>
+        <p>No saved addresses</p>
+        <button (click)="startAddAddress()" class="btn-primary">Add Your First Address</button>
+      </div>
+
+      <div class="addresses-list">
+        <div *ngFor="let address of user?.addresses" class="address-card" [class.default]="address.isDefault">
+          <div class="address-header">
+            <div class="address-type">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path d="M21 10C21 17 12 23 12 23C12 23 3 17 3 10C3 7.61305 3.94821 5.32387 5.63604 3.63604C7.32387 1.94821 9.61305 1 12 1C14.3869 1 16.6761 1.94821 18.364 3.63604C20.0518 5.32387 21 7.61305 21 10Z" stroke-width="2"/>
+                <circle cx="12" cy="10" r="3" stroke-width="2"/>
+              </svg>
+              <span>{{ address.type | titlecase }}</span>
+            </div>
+            <span *ngIf="address.isDefault" class="default-badge">Default</span>
+          </div>
+          
+          <div class="address-content">
+            <p><strong>{{ address.name }}</strong> | {{ address.phone }}</p>
+            <p>{{ address.addressLine1 }}</p>
+            <p *ngIf="address.addressLine2">{{ address.addressLine2 }}</p>
+            <p>{{ address.city }}, {{ address.state }} - {{ address.pincode }}</p>
+            <p *ngIf="address.landmark" class="landmark">Landmark: {{ address.landmark }}</p>
+          </div>
+          
+          <div class="address-actions">
+            <button (click)="startEditAddress(address)" class="action-btn">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M18.5 2.50001C18.8978 2.10219 19.4374 1.87869 20 1.87869C20.5626 1.87869 21.1022 2.10219 21.5 2.50001C21.8978 2.89784 22.1213 3.4374 22.1213 4.00001C22.1213 4.56262 21.8978 5.10219 21.5 5.50001L12 15L8 16L9 12L18.5 2.50001Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              Edit
+            </button>
+            <button *ngIf="!address.isDefault" (click)="setDefaultAddress(address.id)" class="action-btn">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <polyline points="20 6 9 17 4 12" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              Set Default
+            </button>
+            <button (click)="deleteAddress(address.id)" class="action-btn delete">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <polyline points="3 6 5 6 21 6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M19 6V20C19 21 18 22 17 22H7C6 22 5 21 5 20V6M8 6V4C8 3 9 2 10 2H14C15 2 16 3 16 4V6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              Delete
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile Bottom Navigation -->
+  <nav class="mobile-bottom-nav hide-desktop">
+    <a routerLink="/" class="nav-item" [class.active]="activeBottomTab === 'home'" (click)="setBottomTab('home')">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path d="M3 9L12 2L21 9V20C21 20.5304 20.7893 21.0391 20.4142 21.4142C20.0391 21.7893 19.5304 22 19 22H5C4.46957 22 3.96086 21.7893 3.58579 21.4142C3.21071 21.0391 3 20.5304 3 20V9Z" stroke-width="2"/>
+        <path d="M9 22V12H15V22" stroke-width="2"/>
+      </svg>
+      <span>Home</span>
+    </a>
+    
+    <a routerLink="/products" class="nav-item" [class.active]="activeBottomTab === 'products'" (click)="setBottomTab('products')">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <rect x="3" y="3" width="7" height="7" stroke-width="2"/>
+        <rect x="14" y="3" width="7" height="7" stroke-width="2"/>
+        <rect x="3" y="14" width="7" height="7" stroke-width="2"/>
+        <rect x="14" y="14" width="7" height="7" stroke-width="2"/>
+      </svg>
+      <span>Products</span>
+    </a>
+    
+    <a routerLink="/cart" class="nav-item" [class.active]="activeBottomTab === 'cart'" (click)="setBottomTab('cart')">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <circle cx="9" cy="21" r="1" stroke-width="2"/>
+        <circle cx="20" cy="21" r="1" stroke-width="2"/>
+        <path d="M1 1H5L7.68 14.39C7.77 14.83 8.17 15.17 8.62 15.17H19.4C19.85 15.17 20.25 14.83 20.34 14.39L22 6H6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span>Cart</span>
+    </a>
+    
+    <a routerLink="/profile" class="nav-item active" [class.active]="activeBottomTab === 'profile'" (click)="setBottomTab('profile')">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="12" cy="7" r="4" stroke-width="2"/>
+      </svg>
+      <span>Profile</span>
+    </a>
+  </nav>
+</div>

@@ -1,0 +1,449 @@
+<div class="seller-portal">
+  <!-- Page Header -->
+  <section class="page-header">
+    <div class="container">
+      <h1 class="page-title">Seller Portal</h1>
+      <p class="page-subtitle">Manage your products and grow your business</p>
+    </div>
+  </section>
+
+  <div class="portal-container container">
+    <!-- Tab Navigation -->
+    <div class="tab-navigation">
+      <button 
+        (click)="setTab('add')" 
+        [class.active]="activeTab === 'add'"
+        class="tab-btn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <line x1="12" y1="5" x2="12" y2="19" stroke-width="2" stroke-linecap="round"/>
+          <line x1="5" y1="12" x2="19" y2="12" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <span>{{ isEditMode ? 'Edit Product' : 'Add Product' }}</span>
+      </button>
+      
+      <button 
+        (click)="setTab('manage')" 
+        [class.active]="activeTab === 'manage'"
+        class="tab-btn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <rect x="3" y="3" width="7" height="7" stroke-width="2"/>
+          <rect x="14" y="3" width="7" height="7" stroke-width="2"/>
+          <rect x="3" y="14" width="7" height="7" stroke-width="2"/>
+          <rect x="14" y="14" width="7" height="7" stroke-width="2"/>
+        </svg>
+        <span>My Products</span>
+        <span *ngIf="myProducts.length > 0" class="badge">{{ myProducts.length }}</span>
+      </button>
+    </div>
+
+    <!-- Add/Edit Product Tab -->
+    <div *ngIf="activeTab === 'add'" class="tab-content">
+      <div class="product-form-card">
+        <h2>{{ isEditMode ? 'Edit Product' : 'Add New Product' }}</h2>
+        
+        <form class="product-form">
+          <!-- Basic Information -->
+          <div class="form-section">
+            <h3 class="section-title">Basic Information</h3>
+            
+            <div class="form-group">
+              <label>Product Name *</label>
+              <input 
+                type="text" 
+                [(ngModel)]="productForm.name" 
+                name="name"
+                class="form-input" 
+                placeholder="e.g., Fresh Strawberries"
+                required />
+            </div>
+
+            <div class="form-group">
+              <label>Description *</label>
+              <textarea 
+                [(ngModel)]="productForm.description" 
+                name="description"
+                class="form-textarea" 
+                rows="4"
+                placeholder="Describe your product in detail..."
+                required></textarea>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Category *</label>
+                <select [(ngModel)]="productForm.category" name="category" class="form-input">
+                  <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label>Brand</label>
+                <input 
+                  type="text" 
+                  [(ngModel)]="productForm.brand" 
+                  name="brand"
+                  class="form-input" 
+                  placeholder="e.g., Mapro" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Origin</label>
+              <input 
+                type="text" 
+                [(ngModel)]="productForm.origin" 
+                name="origin"
+                class="form-input" 
+                placeholder="e.g., Mahabaleshwar" />
+            </div>
+          </div>
+
+          <!-- Pricing -->
+          <div class="form-section">
+            <h3 class="section-title">Pricing & Stock</h3>
+            
+            <div class="form-row">
+              <div class="form-group">
+                <label>Selling Price (₹) *</label>
+                <input 
+                  type="number" 
+                  [(ngModel)]="productForm.price" 
+                  name="price"
+                  (ngModelChange)="calculateDiscount()"
+                  class="form-input" 
+                  min="0"
+                  step="0.01"
+                  required />
+              </div>
+
+              <div class="form-group">
+                <label>Original Price (₹)</label>
+                <input 
+                  type="number" 
+                  [(ngModel)]="productForm.originalPrice" 
+                  name="originalPrice"
+                  (ngModelChange)="calculateDiscount()"
+                  class="form-input" 
+                  min="0"
+                  step="0.01" />
+              </div>
+
+              <div class="form-group">
+                <label>Discount (%)</label>
+                <input 
+                  type="number" 
+                  [(ngModel)]="productForm.discount" 
+                  name="discount"
+                  class="form-input" 
+                  readonly />
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Unit *</label>
+                <select [(ngModel)]="productForm.unit" name="unit" class="form-input">
+                  <option *ngFor="let u of units" [value]="u">{{ u }}</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label>Stock Quantity *</label>
+                <input 
+                  type="number" 
+                  [(ngModel)]="productForm.stockQuantity" 
+                  name="stockQuantity"
+                  class="form-input" 
+                  min="0"
+                  required />
+              </div>
+
+              <div class="form-group">
+                <label>Shelf Life</label>
+                <input 
+                  type="text" 
+                  [(ngModel)]="productForm.shelfLife" 
+                  name="shelfLife"
+                  class="form-input" 
+                  placeholder="e.g., 7 days" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Images -->
+          <div class="form-section">
+            <h3 class="section-title">Product Images</h3>
+            
+            <div *ngFor="let image of productForm.images; let i = index" class="image-input-group">
+              <div class="form-group">
+                <label>Image URL {{ i + 1 }} {{ i === 0 ? '*' : '' }}</label>
+                <div class="input-with-button">
+                  <input 
+                    type="url" 
+                    [(ngModel)]="productForm.images[i]" 
+                    [name]="'image' + i"
+                    class="form-input" 
+                    placeholder="https://example.com/image.jpg" />
+                  <button 
+                    *ngIf="productForm.images.length > 1"
+                    type="button" 
+                    (click)="removeImageUrl(i)" 
+                    class="btn-remove">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                      <line x1="18" y1="6" x2="6" y2="18" stroke-width="2" stroke-linecap="round"/>
+                      <line x1="6" y1="6" x2="18" y2="18" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+            
+            <button type="button" (click)="addImageUrl()" class="btn-add-image">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <line x1="12" y1="5" x2="12" y2="19" stroke-width="2" stroke-linecap="round"/>
+                <line x1="5" y1="12" x2="19" y2="12" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+              Add Another Image
+            </button>
+          </div>
+
+          <!-- Product Features -->
+          <div class="form-section">
+            <h3 class="section-title">Product Features</h3>
+            
+            <div class="checkbox-group">
+              <label class="checkbox-label">
+                <input type="checkbox" [(ngModel)]="productForm.isOrganic" name="isOrganic" />
+                <span>🌿 Organic Product</span>
+              </label>
+              
+              <label class="checkbox-label">
+                <input type="checkbox" [(ngModel)]="productForm.isSeasonal" name="isSeasonal" />
+                <span>⭐ Seasonal Product</span>
+              </label>
+              
+              <label class="checkbox-label">
+                <input type="checkbox" [(ngModel)]="productForm.isFeatured" name="isFeatured" />
+                <span>🔥 Featured Product</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Tags -->
+          <div class="form-section">
+            <h3 class="section-title">Tags</h3>
+            
+            <div class="tags-input-group">
+              <div class="form-group">
+                <div class="input-with-button">
+                  <input 
+                    type="text" 
+                    [(ngModel)]="tagInput" 
+                    name="tagInput"
+                    (keyup.enter)="addTag()"
+                    class="form-input" 
+                    placeholder="Add tags (e.g., fresh, premium)" />
+                  <button type="button" (click)="addTag()" class="btn-add-tag">Add</button>
+                </div>
+              </div>
+              
+              <div class="tags-list" *ngIf="productForm.tags.length > 0">
+                <span *ngFor="let tag of productForm.tags" class="tag">
+                  {{ tag }}
+                  <button type="button" (click)="removeTag(tag)" class="tag-remove">×</button>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Nutrition Information (Optional) -->
+          <div class="form-section">
+            <h3 class="section-title">Nutrition Information (per 100g)</h3>
+            
+            <div class="form-row">
+              <div class="form-group">
+                <label>Calories (kcal)</label>
+                <input 
+                  type="number" 
+                  [(ngModel)]="productForm.nutritionInfo.calories" 
+                  name="calories"
+                  class="form-input" 
+                  min="0" />
+              </div>
+
+              <div class="form-group">
+                <label>Protein (g)</label>
+                <input 
+                  type="number" 
+                  [(ngModel)]="productForm.nutritionInfo.protein" 
+                  name="protein"
+                  class="form-input" 
+                  min="0"
+                  step="0.1" />
+              </div>
+
+              <div class="form-group">
+                <label>Carbs (g)</label>
+                <input 
+                  type="number" 
+                  [(ngModel)]="productForm.nutritionInfo.carbs" 
+                  name="carbs"
+                  class="form-input" 
+                  min="0"
+                  step="0.1" />
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Fat (g)</label>
+                <input 
+                  type="number" 
+                  [(ngModel)]="productForm.nutritionInfo.fat" 
+                  name="fat"
+                  class="form-input" 
+                  min="0"
+                  step="0.1" />
+              </div>
+
+              <div class="form-group">
+                <label>Fiber (g)</label>
+                <input 
+                  type="number" 
+                  [(ngModel)]="productForm.nutritionInfo.fiber" 
+                  name="fiber"
+                  class="form-input" 
+                  min="0"
+                  step="0.1" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Form Actions -->
+          <div class="form-actions">
+            <button type="button" (click)="resetForm()" class="btn-cancel">
+              Cancel
+            </button>
+            <button type="button" (click)="submitProduct()" class="btn-submit">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <polyline points="20 6 9 17 4 12" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              {{ isEditMode ? 'Update Product' : 'Add Product' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Manage Products Tab -->
+    <div *ngIf="activeTab === 'manage'" class="tab-content">
+      <div *ngIf="myProducts.length === 0" class="empty-state">
+        <svg width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <rect x="3" y="3" width="7" height="7" stroke-width="2"/>
+          <rect x="14" y="3" width="7" height="7" stroke-width="2"/>
+          <rect x="3" y="14" width="7" height="7" stroke-width="2"/>
+          <rect x="14" y="14" width="7" height="7" stroke-width="2"/>
+        </svg>
+        <h3>No products yet</h3>
+        <p>Start selling by adding your first product</p>
+        <button (click)="setTab('add')" class="btn-primary">Add Your First Product</button>
+      </div>
+
+      <div *ngIf="myProducts.length > 0" class="products-grid">
+        <div *ngFor="let product of myProducts" class="product-card">
+          <div class="product-image">
+            <img [src]="product.images[0]" [alt]="product.name" />
+            <div class="product-badges">
+              <span *ngIf="product.discount" class="badge discount-badge">-{{ product.discount }}%</span>
+              <span *ngIf="product.isOrganic" class="badge organic-badge">🌿</span>
+              <span *ngIf="product.isSeasonal" class="badge seasonal-badge">⭐</span>
+            </div>
+            <div class="stock-status" [class.out-of-stock]="!product.inStock">
+              {{ product.inStock ? 'In Stock' : 'Out of Stock' }}
+            </div>
+          </div>
+
+          <div class="product-info">
+            <h3 class="product-name">{{ product.name }}</h3>
+            <p class="product-category">{{ product.category }}</p>
+            
+            <div class="product-meta">
+              <div class="product-price">
+                <span class="current-price">₹{{ product.price }}</span>
+                <span *ngIf="product.originalPrice" class="original-price">₹{{ product.originalPrice }}</span>
+              </div>
+              <div class="product-stock">
+                Stock: {{ product.stockQuantity }} {{ product.unit }}
+              </div>
+            </div>
+
+            <div class="product-actions">
+              <button (click)="editProduct(product)" class="action-btn edit">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M18.5 2.50001C18.8978 2.10219 19.4374 1.87869 20 1.87869C20.5626 1.87869 21.1022 2.10219 21.5 2.50001C21.8978 2.89784 22.1213 3.4374 22.1213 4.00001C22.1213 4.56262 21.8978 5.10219 21.5 5.50001L12 15L8 16L9 12L18.5 2.50001Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Edit
+              </button>
+              
+              <button (click)="toggleProductStatus(product)" class="action-btn toggle">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <circle cx="12" cy="12" r="10" stroke-width="2"/>
+                  <line x1="12" y1="8" x2="12" y2="12" stroke-width="2" stroke-linecap="round"/>
+                  <line x1="12" y1="16" x2="12.01" y2="16" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                {{ product.inStock ? 'Disable' : 'Enable' }}
+              </button>
+              
+              <button (click)="deleteProduct(product.id)" class="action-btn delete">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <polyline points="3 6 5 6 21 6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M19 6V20C19 21 18 22 17 22H7C6 22 5 21 5 20V6M8 6V4C8 3 9 2 10 2H14C15 2 16 3 16 4V6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile Bottom Navigation -->
+  <nav class="mobile-bottom-nav hide-desktop">
+    <a routerLink="/" class="nav-item" [class.active]="activeBottomTab === 'home'" (click)="setBottomTab('home')">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path d="M3 9L12 2L21 9V20C21 20.5304 20.7893 21.0391 20.4142 21.4142C20.0391 21.7893 19.5304 22 19 22H5C4.46957 22 3.96086 21.7893 3.58579 21.4142C3.21071 21.0391 3 20.5304 3 20V9Z" stroke-width="2"/>
+        <path d="M9 22V12H15V22" stroke-width="2"/>
+      </svg>
+      <span>Home</span>
+    </a>
+    
+    <a routerLink="/products" class="nav-item" [class.active]="activeBottomTab === 'products'" (click)="setBottomTab('products')">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <rect x="3" y="3" width="7" height="7" stroke-width="2"/>
+        <rect x="14" y="3" width="7" height="7" stroke-width="2"/>
+        <rect x="3" y="14" width="7" height="7" stroke-width="2"/>
+        <rect x="14" y="14" width="7" height="7" stroke-width="2"/>
+      </svg>
+      <span>Products</span>
+    </a>
+    
+    <a routerLink="/cart" class="nav-item" [class.active]="activeBottomTab === 'cart'" (click)="setBottomTab('cart')">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <circle cx="9" cy="21" r="1" stroke-width="2"/>
+        <circle cx="20" cy="21" r="1" stroke-width="2"/>
+        <path d="M1 1H5L7.68 14.39C7.77 14.83 8.17 15.17 8.62 15.17H19.4C19.85 15.17 20.25 14.83 20.34 14.39L22 6H6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span>Cart</span>
+    </a>
+    
+    <a routerLink="/profile" class="nav-item" [class.active]="activeBottomTab === 'profile'" (click)="setBottomTab('profile')">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="12" cy="7" r="4" stroke-width="2"/>
+      </svg>
+      <span>Profile</span>
+    </a>
+  </nav>
+</div>
